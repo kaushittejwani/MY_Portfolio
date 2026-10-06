@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaushit Kumar Tejwani | Backend Developer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#38bdf8', /* Cyan */
+                            500: '#818cf8', /* Indigo */
+                            600: '#6d28d9', /* Purple */
+                        },
+                        dark: {
+                            900: '#030305',
+                            800: '#0a0a0f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #030305;
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none; /* Let clicks pass through to UI */
+        }
+
+        /* High-Quality Glassmorphism */
+        .glass-nav {
+            background: rgba(3, 3, 5, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 25, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(129, 140, 248, 0.3); /* Indigo border glow on hover */
+            box-shadow: 0 30px 60px -15px rgba(129, 140, 248, 0.2), 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .glass-pill:hover {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.5);
+            color: #fff;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 24px rgba(129, 140, 248, 0.6);
+        }
+        
+        .heading-gradient {
+            background: linear-gradient(135deg, #e0e7ff 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030305;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e1e2d;
+            border-radius: 5px;
+            border: 2px solid #030305;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body class="selection:bg-brand-500 selection:text-white">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+            <div class="flex justify-between items-center h-24">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-2xl font-bold tracking-tighter text-white flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(129,140,248,0.5)]">
+                            KT
+                        </div>
+                        <span class="hidden sm:block">Kaushit.</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#about" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#experience" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Experience</a>
+                        <a href="#skills" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
+                        <a href="#projects" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Projects</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-5">
+                    <a href="https://github.com/kaushittejwani" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/kaushit-tejwani" target="_blank" class="text-gray-400 hover:text-[#0a66c2] transition-colors">
+                        <i class="fab fa-linkedin text-xl"></i>
+                    </a>
+                    <a href="mailto:Kaushit.tejwani01@gmail.com" class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-white/10 hover:bg-white/20 border-white/20 backdrop-blur-md transition-all">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-24 pb-20">
+        
+        <section id="about" class="min-h-[85vh] flex items-center justify-center px-6 lg:px-10">
+            <div class="max-w-5xl w-full flex flex-col items-center text-center">
+                <div class="inline-flex items-center space-x-2 bg-brand-500/10 border border-brand-500/30 rounded-full px-5 py-2 mb-8 backdrop-blur-md">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
+                    <span class="text-sm font-mono text-brand-400">System.out.println("Available for hire");</span>
+                </div>
+                
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                    <span class="heading-gradient text-glow">Kaushit Kumar Tejwani</span>
+                </h1>
+                
+                <h2 class="text-2xl sm:text-3xl font-medium text-gray-300 font-mono mb-8 flex items-center justify-center gap-3">
+                    <i class="fas fa-server text-brand-500 text-xl"></i> Backend Developer
+                </h2>
+                
+                <p class="max-w-3xl mx-auto text-lg sm:text-xl text-gray-400 leading-relaxed font-light mb-12">
+                    Backend Developer with 2+ years of total professional experience specializing in Node.js, TypeScript, PostgreSQL, MongoDB, AWS, and Microservices architecture. Experienced in building scalable SaaS applications, Event-Driven Architectures, RESTful APIs, authentication systems, and cloud infrastructure. Adept at integrating AI workflows, Retrieval-Augmented Generation (RAG) pipelines, and containerized deployments into highly reliable backend systems.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-5 justify-center">
+                    <a href="#experience" class="px-8 py-4 rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-semibold shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-all transform hover:scale-105 text-center">
+                        Explore Experience
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="py-32 px-6 lg:px-10 max-w-5xl mx-auto">
+            <div class="mb-20 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold heading-gradient mb-4">Professional Experience</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-brand-400 to-brand-600 mx-auto rounded-full"></div>
+                <p class="mt-6 text-gray-400 text-lg">Architecting robust systems across freelance and enterprise environments.</p>
+            </div>
+
+            <div class="space-y-12">
+                
+                <div class="glass-card rounded-[2rem] p-8 md:p-12 lg:p-14 w-full relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fas fa-robot text-8xl text-brand-400"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between mb-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-white tracking-tight mb-2">Independent Software Developer</h3>
+                            <p class="text-brand-400 font-mono text-lg">Freelance & Open Source</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 px-4 py-2 bg-white/5 rounded-lg border border-white/10 backdrop-blur-md inline-block h-fit">
+                            <span class="text-gray-300 font-mono text-sm">Sep 2025 - Present</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-5 text-gray-300 text-lg leading-relaxed relative z-10">
+                        <li class="flex items-start">
+                            <span class="text-brand-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Architected and deployed an automated call workflow utilizing a cron job scheduled on <strong>Render</strong>, managing the deployment pipeline and codebase via GitHub (psychology-agent).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brand-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Designed and implemented multi-step <strong>Agentic AI flows</strong> connecting LLMs with scalable Node.js backend services to fully automate complex data processing tasks.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brand-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Developed local WhatsApp chatbot automation tools leveraging Node.js, Express.js, <strong>whatsapp-web.js</strong>, and Socket.io to generate dynamic QR codes and deploy bidirectional automated reply systems.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brand-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Upgraded the frontend and backend integration of the Xolo Music Player application by implementing the Web Speech API for voice commands, Web Audio API for visualizers, and an asynchronous search logic system.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brand-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Configured and optimized local development environments across multiple operating systems, including Ubuntu, to support advanced Docker containerization and message broker testing.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-[2rem] p-8 md:p-12 lg:p-14 w-full relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fas fa-cloud text-8xl text-purple-400"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between mb-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-white tracking-tight mb-2">Software Developer</h3>
+                            <p class="text-purple-400 font-mono text-lg">Xoance Software & Services Pvt Ltd</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 px-4 py-2 bg-white/5 rounded-lg border border-white/10 backdrop-blur-md inline-block h-fit">
+                            <span class="text-gray-300 font-mono text-sm">Feb 2025 - Aug 2025</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-5 text-gray-300 text-lg leading-relaxed relative z-10">
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Developed and deployed a robust SaaS backend (Acyuta app) using <strong>TypeScript, Kysely, PostgreSQL, and AWS</strong> for tire ordering and warranty management.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Built and integrated multi-level role-based access (Super Admin, Admin, Distributor, Dealer, Customer, User) with automated workflows for orders, claims, and wallet credit management.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Engineered scalable API endpoints for vehicles, orders, tire purchases, and warranty claims, embedding automated eligibility checks and pricing logic.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Designed and enhanced the React-based admin panel (with Cursor.ai support) including order tracking, claims management, defect types, and communication settings.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Implemented email/OTP-based authentication and notifications via SendGrid and Msg91, along with custom messaging services, templates, and approval workflows.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Resolved critical API failures and messaging issues in the Zeta Car app, and fixed email/WhatsApp API bugs, restoring reliable backend functionality and dependable notifications.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-[2rem] p-8 md:p-12 lg:p-14 w-full relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fas fa-network-wired text-8xl text-blue-400"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between mb-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-white tracking-tight mb-2">Software Developer</h3>
+                            <p class="text-blue-400 font-mono text-lg">Deligence Technologies Pvt Ltd</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 px-4 py-2 bg-white/5 rounded-lg border border-white/10 backdrop-blur-md inline-block h-fit">
+                            <span class="text-gray-300 font-mono text-sm">Nov 2022 - Feb 2024</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-5 text-gray-300 text-lg leading-relaxed relative z-10">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Architected and deployed a robust microservices framework using <strong>Moleculer.js</strong>, achieving substantial improvements in system scalability and performance.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Developed and integrated the <strong>Stripe</strong> payment gateway for seamless wallet-to-bank withdrawals, optimizing the payment process and ensuring secure, swift transactions.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Designed and developed the entire backend infrastructure for live event creation and real-time video calls for BSpotz using Moleculer.js.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Created REST APIs with comprehensive validation libraries, ensuring data integrity and optimizing API response times.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Leveraged MongoDB for efficient data storage, implementing performance enhancements that significantly improved database query efficiency.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Engineered the backend system for PCAP (Pre-Clinical Assessment Procedure) using Meteor.js, delivering a reliable infrastructure and contributing to cohesive frontend experiences.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-[2rem] p-8 md:p-12 lg:p-14 w-full relative overflow-hidden group">
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between mb-8">
+                        <div>
+                            <h3 class="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">Node.js Developer (Internship)</h3>
+                            <p class="text-teal-400 font-mono text-lg">HiDeus Community</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 px-4 py-2 bg-white/5 rounded-lg border border-white/10 backdrop-blur-md inline-block h-fit">
+                            <span class="text-gray-300 font-mono text-sm">Aug 2022 - Oct 2022</span>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-5 text-gray-300 text-lg leading-relaxed relative z-10">
+                        <li class="flex items-start">
+                            <span class="text-teal-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Developed and implemented a robust 3-layer architecture for a school management system for a US-based client.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Created and optimized RESTful APIs for students, teachers, classes, and programs.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-500 mr-4 mt-1.5 text-xl"><i class="fas fa-check-circle"></i></span>
+                            <span>Deployed the school management system on AWS EC2, leveraging cloud infrastructure to ensure high availability and scalability.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="skills" class="py-24 px-6 lg:px-10 max-w-7xl mx-auto">
+            <div class="mb-16 text-center">
+                <h2 class="text-4xl font-bold heading-gradient mb-4">Technical Expertise</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-brand-400 to-brand-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Languages -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-code text-3xl text-brand-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">Languages</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">JavaScript</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">TypeScript</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">SQL</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">C</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">C++</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Java</span>
+                    </div>
+                </div>
+
+                <!-- Databases & Caching -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-database text-3xl text-purple-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">Databases & Caching</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">PostgreSQL</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">MongoDB</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">MySQL</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Redis</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Vector Databases</span>
+                    </div>
+                </div>
+
+                <!-- DevOps & Cloud -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-server text-3xl text-green-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">DevOps & Cloud</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">AWS (EC2, S3, CloudWatch)</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Docker</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Cron Jobs</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Render</span>
+                    </div>
+                </div>
+
+                <!-- Backend & Frameworks -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-cogs text-3xl text-yellow-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">Backend & Frameworks</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Node.js</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Express.js</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Moleculer.js</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Meteor.js</span>
+                    </div>
+                </div>
+
+                <!-- Architecture & APIs -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-project-diagram text-3xl text-pink-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">Architecture & APIs</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Microservices</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">REST APIs</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">gRPC</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">API Gateways</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Apache Kafka</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">RabbitMQ</span>
+                    </div>
+                </div>
+
+                <!-- AI & Tools -->
+                <div class="glass-card p-10 rounded-[2rem]">
+                    <div class="flex items-center gap-4 mb-8 border-b border-white/10 pb-4">
+                        <i class="fas fa-brain text-3xl text-cyan-400"></i>
+                        <h3 class="text-2xl font-semibold text-white">AI & Tools</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Agentic AI</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">RAG</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Ollama</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Cursor</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">Gemini / Claude / ChatGPT</span>
+                        <span class="glass-pill px-5 py-2.5 rounded-xl text-sm font-medium text-gray-200">n8n</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-24 px-6 lg:px-10 max-w-5xl mx-auto">
+            <div class="mb-16 text-center">
+                <h2 class="text-4xl font-bold heading-gradient mb-4">Featured Projects</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-brand-400 to-brand-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col md:flex-row">
+                <div class="md:w-5/12 bg-[#0a0a0f] relative p-12 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
+                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500 via-transparent to-transparent"></div>
+                    <i class="fas fa-microchip text-9xl text-indigo-400/80 drop-shadow-[0_0_30px_rgba(99,102,241,0.6)]"></i>
+                </div>
+                <div class="md:w-7/12 p-10 md:p-14 flex flex-col">
+                    <h3 class="text-3xl font-bold text-white mb-4">AI Chatbot & RAG Architecture Pipeline</h3>
+                    <ul class="space-y-4 text-gray-300 text-lg leading-relaxed mb-8 flex-1">
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 mt-1.5"><i class="fas fa-angle-right"></i></span>
+                            <span>Developed a real-time interactive chatbot using Google Generative AI's Gemini Pro model, leveraging advanced system instructions for tailored user responses.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 mt-1.5"><i class="fas fa-angle-right"></i></span>
+                            <span>Integrated Retrieval-Augmented Generation (RAG) methodologies utilizing vector database embeddings and cosine similarity to enhance the contextual accuracy of LLM outputs.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-400 mr-3 mt-1.5"><i class="fas fa-angle-right"></i></span>
+                            <span>Configured multi-agent behaviors, enabling the system to act as a seasoned domain expert.</span>
+                        </li>
+                    </ul>
+                    <div class="flex flex-wrap gap-3 mt-auto pt-6 border-t border-white/10">
+                        <span class="text-sm font-mono px-4 py-2 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">Gemini Pro</span>
+                        <span class="text-sm font-mono px-4 py-2 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">RAG</span>
+                        <span class="text-sm font-mono px-4 py-2 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">Vector DB</span>
+                        <span class="text-sm font-mono px-4 py-2 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">Agentic AI</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-20 border-t border-white/10 glass-nav py-12 relative z-10">
+            <div class="max-w-7xl mx-auto px-6 lg:px-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="text-center md:text-left">
+                    <a href="#" class="text-3xl font-bold tracking-tighter text-white">
+                        K<span class="text-brand-500">T</span>.
+                    </a>
+                    <p class="text-gray-400 mt-2 text-sm font-mono">Backend Developer & System Architect</p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-6">
+                    <a href="tel:+919116398862" class="flex items-center text-gray-300 hover:text-brand-400 transition-colors">
+                        <i class="fas fa-phone-alt mr-3 text-lg"></i>
+                        <span class="text-base font-mono">+91-911-639-8862</span>
+                    </a>
+                    <a href="mailto:Kaushit.tejwani01@gmail.com" class="flex items-center text-gray-300 hover:text-brand-400 transition-colors">
+                        <i class="fas fa-envelope mr-3 text-lg"></i>
+                        <span class="text-base font-mono">Kaushit.tejwani01@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-500 mt-12 font-mono">
+                &copy; <script>document.write(new Date().getFullYear())</script> Kaushit Kumar Tejwani. All rights reserved.
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        window.onload = function() {
+            // Scene Setup
+            const canvas = document.querySelector('#bg-canvas');
+            const scene = new THREE.Scene();
+            
+            // Camera Setup
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 60;
+
+            // Renderer Setup - High Quality for realistic materials
+            const renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                alpha: true,
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+
+            // Group to hold network (for easy rotation)
+            const networkGroup = new THREE.Group();
+            scene.add(networkGroup);
+
+            // Lighting Setup - Crucial for realistic 3D look
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+            scene.add(ambientLight);
+
+            // Colored point lights casting dynamic highlights as requested
+            const light1 = new THREE.PointLight(0x00d2ff, 4, 150); // Cyan
+            light1.position.set(20, 20, 20);
+            scene.add(light1);
+
+            const light2 = new THREE.PointLight(0x7000ff, 4, 150); // Deep Purple
+            light2.position.set(-20, -20, 20);
+            scene.add(light2);
+            
+            const light3 = new THREE.PointLight(0x4f46e5, 3, 150); // Indigo/Deep Blue
+            light3.position.set(0, 0, -30);
+            scene.add(light3);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            dirLight.position.set(10, 20, 30);
+            scene.add(dirLight);
+
+            // Realistic Material for Nodes (Metal/Glass hybrid)
+            const nodeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x111114,
+                metalness: 0.9,
+                roughness: 0.15,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1,
+                emissive: 0x0a0a2a,
+                emissiveIntensity: 0.2
+            });
+
+            // Geometries
+            const sphereGeo = new THREE.SphereGeometry(1.2, 32, 32);
+            const smallSphereGeo = new THREE.SphereGeometry(0.6, 16, 16);
+            const coreGeo = new THREE.SphereGeometry(4, 64, 64);
+
+            // 1. Create Core Node
+            const coreNode = new THREE.Mesh(coreGeo, new THREE.MeshPhysicalMaterial({
+                color: 0x050510,
+                metalness: 1.0,
+                roughness: 0.05,
+                clearcoat: 1.0,
+                emissive: 0x1a1a4a,
+                emissiveIntensity: 0.8
+            }));
+            networkGroup.add(coreNode);
+
+            // 2. Generate Satellite Nodes
+            const nodes = [];
+            const numNodes = 70;
+            const radius = 45;
+
+            for (let i = 0; i < numNodes; i++) {
+                // Spherical distribution
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                const r = Math.cbrt(Math.random()) * radius + 8; // Avoid core overlap
+
+                const x = r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.sin(phi) * Math.sin(theta);
+                const z = r * Math.cos(phi);
+
+                const isLarge = Math.random() > 0.8;
+                const mesh = new THREE.Mesh(isLarge ? sphereGeo : smallSphereGeo, nodeMaterial);
+                mesh.position.set(x, y, z);
+                
+                // Add random subtle rotation speeds for individual nodes
+                mesh.userData = {
+                    rx: Math.random() * 0.01 - 0.005,
+                    ry: Math.random() * 0.01 - 0.005
+                };
+                
+                nodes.push(mesh);
+                networkGroup.add(mesh);
+            }
+
+            // 3. Generate Connections (Lines representing data flow)
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x4f46e5,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const lineGeometry = new THREE.BufferGeometry();
+            const linePositions = [];
+
+            // Connect nodes if they are close to each other
+            for (let i = 0; i < nodes.length; i++) {
+                // Connect to core sometimes
+                if (Math.random() > 0.6) {
+                    linePositions.push(
+                        nodes[i].position.x, nodes[i].position.y, nodes[i].position.z,
+                        0, 0, 0 // Core is at 0,0,0
+                    );
+                }
+
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dist = nodes[i].position.distanceTo(nodes[j].position);
+                    if (dist < 18) { // Connection threshold
+                        linePositions.push(
+                            nodes[i].position.x, nodes[i].position.y, nodes[i].position.z,
+                            nodes[j].position.x, nodes[j].position.y, nodes[j].position.z
+                        );
+                    }
+                }
+            }
+            
+            lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+            const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+            networkGroup.add(lines);
+
+            // Mouse Interaction for Parallax
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            });
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Animation Loop
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = clock.getElapsedTime();
+
+                // Rotate entire network slowly
+                networkGroup.rotation.y = time * 0.05;
+                networkGroup.rotation.x = time * 0.02;
+
+                // Animate individual nodes slightly
+                nodes.forEach(node => {
+                    node.rotation.x += node.userData.rx;
+                    node.rotation.y += node.userData.ry;
+                });
+                
+                // Pulsate core
+                coreNode.scale.setScalar(1 + Math.sin(time * 2) * 0.02);
+
+                // Mouse Parallax - Move the camera slightly based on mouse
+                targetX = mouseX * 0.02;
+                targetY = mouseY * 0.02;
+
+                camera.position.x += (targetX - camera.position.x) * 0.05;
+                camera.position.y += (-targetY - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+                
+                // Orbit lights to create dynamic shadows/highlights
+                light1.position.x = Math.sin(time * 0.5) * 30;
+                light1.position.z = Math.cos(time * 0.5) * 30;
+                
+                light2.position.y = Math.cos(time * 0.3) * 40;
+                light2.position.z = Math.sin(time * 0.3) * 40;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+            
+            // Navbar blur effect on scroll
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.style.background = 'rgba(3, 3, 5, 0.85)';
+                    navbar.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.5)';
+                } else {
+                    navbar.style.background = 'rgba(3, 3, 5, 0.6)';
+                    navbar.style.boxShadow = 'none';
+                }
+            });
+        };
+    </script>
+</body>
+</html>
